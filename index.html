@@ -3,199 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Multi-User Portal | Java Tech</title>
+    <title>Enterprise Dual Portal | Secure Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com"></script>
     <style>
-        body { background: #020617; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .glass { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        body { background: #020617; color: white; font-family: sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
         .hidden { display: none !important; }
-        .java-orange { color: #f89820; }
-        input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; transition: 0.3s; }
-        input:focus { border-color: #f89820 !important; outline: none; }
+        input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; padding: 1rem; border-radius: 1rem; width: 100%; outline: none; }
+        input:focus { border-color: #f89820 !important; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- 🔐 AUTHENTICATION BOX -->
-    <div id="authContainer" class="w-full max-w-md glass p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-        <div class="absolute -top-10 -left-10 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
+    <!-- 🔐 AUTH BOX -->
+    <div id="authBox" class="w-full max-w-md glass p-8 rounded-[2.5rem] shadow-2xl">
         
-        <!-- 1. LOGIN VIEW -->
-        <div id="loginView">
-            <h2 class="text-3xl font-black mb-2 text-center tracking-tighter italic">SYSTEM<span class="java-orange">_LOGIN</span></h2>
-            <p class="text-xs text-center text-slate-500 mb-8">Access Enterprise Dashboard</p>
+        <!-- 1. LOGIN -->
+        <div id="loginSection">
+            <h2 class="text-2xl font-bold text-center mb-6 text-orange-500 italic">SYSTEM LOGIN</h2>
             <div class="space-y-4">
-                <input type="text" id="logUser" placeholder="Mobile / Username" class="w-full p-4 rounded-xl">
-                <input type="password" id="logPass" placeholder="Password" class="w-full p-4 rounded-xl">
-                <button onclick="attemptLogin()" class="w-full bg-orange-600 hover:bg-orange-700 py-4 rounded-xl font-black transition-all">SIGN IN</button>
-                <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2">
-                    <button onclick="showView('forgotView')" class="hover:text-white">Forgot Access?</button>
-                    <button onclick="showView('registerView')" class="text-orange-500 hover:text-white">New Registration</button>
+                <input type="text" id="lUser" placeholder="Mobile / Username">
+                <input type="password" id="lPass" placeholder="Password">
+                <button onclick="handleSignIn()" class="w-full bg-orange-600 p-4 rounded-xl font-bold hover:bg-orange-700">SIGN IN</button>
+                <div class="flex justify-between text-xs font-bold text-slate-500 mt-4">
+                    <button onclick="toggleView('regSection')">Create Account</button>
+                    <button onclick="alert('Admin se contact karein: 7317212722')">Forgot?</button>
                 </div>
             </div>
         </div>
 
-        <!-- 2. REGISTRATION VIEW -->
-        <div id="registerView" class="hidden">
-            <h2 class="text-2xl font-black mb-6 text-center">CREATE <span class="text-blue-400">ACCOUNT</span></h2>
+        <!-- 2. REGISTER -->
+        <div id="regSection" class="hidden">
+            <h2 class="text-2xl font-bold text-center mb-6 text-blue-400 italic">NEW REGISTRATION</h2>
             <div class="space-y-4">
-                <input type="text" id="regName" placeholder="Full Name" class="w-full p-4 rounded-xl">
-                <input type="text" id="regUser" placeholder="Mobile Number" class="w-full p-4 rounded-xl">
-                <input type="password" id="regPass" placeholder="Create Password" class="w-full p-4 rounded-xl">
-                <button onclick="handleRegister()" class="w-full bg-blue-600 py-4 rounded-xl font-black">REGISTER NOW</button>
-                <button onclick="showView('loginView')" class="w-full text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">Back to Login</button>
+                <input type="text" id="rName" placeholder="Your Name">
+                <input type="text" id="rUser" placeholder="Mobile Number">
+                <input type="password" id="rPass" placeholder="Create Password">
+                <button onclick="handleSignUp()" class="w-full bg-blue-600 p-4 rounded-xl font-bold">REGISTER</button>
+                <button onclick="toggleView('loginSection')" class="w-full text-xs text-slate-500 mt-2">Back to Login</button>
             </div>
         </div>
 
-        <!-- 3. OTP VERIFICATION VIEW -->
-        <div id="otpView" class="hidden text-center">
-            <div class="mb-6"><i data-lucide="shield-check" class="mx-auto w-12 h-12 text-green-400"></i></div>
-            <h2 class="text-2xl font-black mb-2">VERIFY OTP</h2>
-            <p id="otpMsg" class="text-xs text-slate-400 mb-6 italic"></p>
-            <input type="text" id="otpInput" maxlength="6" placeholder="******" class="w-full p-4 rounded-xl text-center text-2xl tracking-[0.5em] font-bold mb-4 border-2 border-green-500/50">
-            <button onclick="finalVerify()" class="w-full bg-green-600 py-4 rounded-xl font-black">VALIDATE SESSION</button>
-        </div>
-
-        <!-- 4. FORGOT PASSWORD -->
-        <div id="forgotView" class="hidden">
-            <h2 class="text-2xl font-black mb-6 text-center">RESET <span class="text-red-400">ACCESS</span></h2>
-            <p class="text-[10px] text-center mb-6">Enter registered mobile to receive reset code</p>
-            <input type="text" id="forgotMobile" placeholder="Mobile Number" class="w-full p-4 rounded-xl mb-4">
-            <button onclick="handleForgot()" class="w-full bg-red-600 py-4 rounded-xl font-black">SEND RESET OTP</button>
-            <button onclick="showView('loginView')" class="w-full text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">Cancel</button>
+        <!-- 3. OTP VERIFY -->
+        <div id="otpSection" class="hidden text-center">
+            <h2 class="text-2xl font-bold mb-4 text-green-500">OTP VERIFY</h2>
+            <p id="otpNote" class="text-xs text-slate-400 mb-6 italic"></p>
+            <input type="text" id="otpInp" placeholder="Enter OTP" class="text-center tracking-widest text-xl font-bold mb-4 border-green-500">
+            <button onclick="validateOTP()" class="w-full bg-green-600 p-4 rounded-xl font-bold">VERIFY & UNLOCK</button>
         </div>
     </div>
 
-    <!-- 🖥️ MAIN DASHBOARD CONTENT -->
+    <!-- 🖥️ DASHBOARDS -->
     <div id="dashboard" class="hidden w-full max-w-6xl p-6">
-        <nav class="flex justify-between items-center mb-12 glass p-6 rounded-[2rem]">
-            <div>
-                <h1 class="font-black text-xl italic">DEV<span class="java-orange">.SYSTEMS</span></h1>
-                <p id="welcomeUser" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest"></p>
-            </div>
-            <button onclick="location.reload()" class="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="log-out"></i></button>
-        </nav>
+        <div class="flex justify-between items-center mb-10 glass p-6 rounded-2xl">
+            <h1 class="font-black italic text-orange-500 uppercase">System Active</h1>
+            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 px-4 py-2 rounded-lg font-bold">Logout</button>
+        </div>
 
-        <div id="adminPanel" class="hidden animate-in fade-in duration-700">
-            <h2 class="text-4xl font-black mb-8">ADMIN <span class="java-orange">PORTFOLIO</span></h2>
-            <!-- Yahan aapke projects honge -->
+        <!-- ADMIN (AAPKA) VIEW -->
+        <div id="adminView" class="hidden">
+            <h2 class="text-4xl font-bold mb-6 text-white">MY <span class="text-orange-500 underline">PROJECTS</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="glass p-8 rounded-[2rem] border-l-4 border-orange-500">
-                    <h3 class="text-xl font-bold mb-2 underline">Banking Engine (Java)</h3>
-                    <p class="text-sm text-slate-400">Enterprise microservices for real-time transactions.</p>
+                <div class="glass p-8 rounded-3xl border-l-4 border-orange-500">
+                    <h3 class="text-xl font-bold mb-2">Java Microservices</h3>
+                    <p class="text-slate-400">Enterprise banking solutions with Spring Boot.</p>
                 </div>
-                <div class="glass p-8 rounded-[2rem] border-l-4 border-blue-500">
-                    <h3 class="text-xl font-bold mb-2 underline">Kafka Infrastructure</h3>
-                    <p class="text-sm text-slate-400">High-concurrency data streaming pipeline.</p>
+                <div class="glass p-8 rounded-3xl border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold mb-2">Security Engine</h3>
+                    <p class="text-slate-400">Advanced JWT & Multi-Factor Auth systems.</p>
                 </div>
             </div>
-            <div class="mt-10 text-center">
-                <a href="https://wa.me" class="bg-green-600 px-8 py-4 rounded-full font-bold inline-flex items-center gap-2"><i data-lucide="message-circle"></i> Direct WhatsApp Contact</a>
-            </div>
+            <a href="https://wa.me" class="inline-block mt-10 bg-green-600 px-8 py-4 rounded-full font-bold">Contact via WhatsApp</a>
         </div>
 
-        <div id="userPanel" class="hidden">
-            <h2 class="text-3xl font-black mb-8 text-blue-400 italic uppercase">User Workspace</h2>
-            <div class="glass p-10 rounded-[3rem] text-center border-dashed border-2 border-slate-700">
-                <i data-lucide="plus-circle" class="mx-auto w-12 h-12 text-slate-600 mb-4"></i>
-                <p class="text-slate-500">You don't have any projects yet.</p>
-                <button class="mt-6 bg-white/5 border border-white/10 px-6 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-all">ADD NEW PROJECT</button>
+        <!-- USER VIEW -->
+        <div id="userView" class="hidden text-center py-20">
+            <h2 class="text-3xl font-bold mb-4 text-blue-400">USER DASHBOARD</h2>
+            <div class="glass p-10 rounded-[3rem] border-dashed border-2 border-slate-700">
+                <p class="text-slate-500 italic">No projects found. Use the "Add Project" button to start.</p>
+                <button class="mt-6 border border-slate-600 px-6 py-2 rounded-xl text-xs">+ Add New Project</button>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script>
         lucide.createIcons();
 
-        // 🧠 SYSTEM CONFIG
-        const ADMIN_MOBILE = "7317212722";
-        const ADMIN_PASS = "admin7317";
-        let currentOTP = "";
-        let loggedUser = null;
+        let generatedOTP = "";
+        let sessionUser = "";
 
-        // View Controller
-        function showView(viewId) {
-            ['loginView', 'registerView', 'otpView', 'forgotView'].forEach(v => {
-                document.getElementById(v).classList.add('hidden');
-            });
-            document.getElementById(viewId).classList.remove('hidden');
+        // Function to toggle between Login/Register
+        function toggleView(showId) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('regSection').classList.add('hidden');
+            document.getElementById('otpSection').classList.add('hidden');
+            document.getElementById(showId).classList.remove('hidden');
         }
 
-        // Generate Random OTP
-        function generateOTP() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-        }
+        // Handle Registration
+        function handleSignUp() {
+            const name = document.getElementById('rName').value;
+            const mob = document.getElementById('rUser').value;
+            const pass = document.getElementById('rPass').value;
 
-        // Login Logic
-        function attemptLogin() {
-            const user = document.getElementById('logUser').value;
-            const pass = document.getElementById('logPass').value;
+            if(!name || !mob || !pass) return alert("Fill all fields!");
+
+            let users = JSON.parse(localStorage.getItem('dbUsers') || '[]');
+            users.push({ name, mob, pass });
+            localStorage.setItem('dbUsers', JSON.stringify(users));
             
-            // Check LocalStorage for Users
-            const users = JSON.parse(localStorage.getItem('webUsers') || '[]');
-            const foundUser = users.find(u => u.mobile === user && u.pass === pass);
+            alert("Registration Success! Please Login.");
+            toggleView('loginSection');
+        }
 
-            if (user === ADMIN_MOBILE && pass === ADMIN_PASS) {
-                initiateOTP("ADMIN_SECURE");
+        // Handle Sign In (Fix for Click issue)
+        function handleSignIn() {
+            const u = document.getElementById('lUser').value;
+            const p = document.getElementById('lPass').value;
+
+            const adminMob = "7317212722";
+            const adminPass = "admin7317";
+
+            let users = JSON.parse(localStorage.getItem('dbUsers') || '[]');
+            const foundUser = users.find(user => user.mob === u && user.pass === p);
+
+            if (u === adminMob && p === adminPass) {
+                sendOTP("ADMIN_ACC");
             } else if (foundUser) {
-                initiateOTP(foundUser.name);
+                sendOTP(foundUser.name);
             } else {
-                alert("❌ Access Denied: Invalid Credentials");
+                alert("Invalid Username or Password!");
             }
-        }
-
-        // Registration Logic
-        function handleRegister() {
-            const name = document.getElementById('regName').value;
-            const mobile = document.getElementById('regUser').value;
-            const pass = document.getElementById('regPass').value;
-
-            if(!name || !mobile || !pass) return alert("Please fill all fields!");
-            
-            let users = JSON.parse(localStorage.getItem('webUsers') || '[]');
-            if(users.find(u => u.mobile === mobile)) return alert("User already exists!");
-
-            users.push({name, mobile, pass});
-            localStorage.setItem('webUsers', JSON.stringify(users));
-            alert("✅ Account Created! Please Login.");
-            showView('loginView');
         }
 
         // OTP Simulation
-        function initiateOTP(userName) {
-            currentOTP = generateOTP();
-            loggedUser = userName;
-            showView('otpView');
-            document.getElementById('otpMsg').innerText = `OTP: ${currentOTP} (MOCK SMS sent to number)`;
-            alert(`SISTEM_MESSAGE: Your login OTP is ${currentOTP}`);
+        function sendOTP(userType) {
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            sessionUser = userType;
+            
+            toggleView('otpSection');
+            document.getElementById('otpNote').innerText = "OTP for 7317212722: " + generatedOTP;
+            alert("Verification OTP: " + generatedOTP);
         }
 
-        function finalVerify() {
-            const inp = document.getElementById('otpInput').value;
-            if(inp === currentOTP) {
-                document.getElementById('authContainer').classList.add('hidden');
+        // Final OTP Validate
+        function validateOTP() {
+            const userOTP = document.getElementById('otpInp').value;
+
+            if(userOTP === generatedOTP) {
+                document.getElementById('authBox').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
                 document.body.classList.remove('items-center', 'justify-center');
-                
-                document.getElementById('welcomeUser').innerText = `SESSION_ACTIVE: ${loggedUser}`;
-                
-                if(loggedUser === "ADMIN_SECURE") {
-                    document.getElementById('adminPanel').classList.remove('hidden');
+
+                if(sessionUser === "ADMIN_ACC") {
+                    document.getElementById('adminView').classList.remove('hidden');
                 } else {
-                    document.getElementById('userPanel').classList.remove('hidden');
+                    document.getElementById('userView').classList.remove('hidden');
                 }
             } else {
-                alert("❌ Verification Failed: Wrong OTP!");
-            }
-        }
-
-        function handleForgot() {
-            const mob = document.getElementById('forgotMobile').value;
-            if(mob === ADMIN_MOBILE) {
-                alert("RESET_LINK: Sent to admin system. New Password: " + ADMIN_PASS);
-            } else {
-                alert("OTP Sent to your registered mobile.");
+                alert("Wrong OTP! Check again.");
             }
         }
     </script>
