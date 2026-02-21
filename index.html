@@ -3,187 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Java Architect Portfolio | Access Restricted</title>
+    <title>Enterprise Multi-User Portal | Java Tech</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com"></script>
-    <link href="https://unpkg.com" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com');
-        :root { --java-orange: #f89820; --bg-dark: #020617; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: #94a3b8; overflow-x: hidden; }
-        .secure-overlay { position: fixed; inset: 0; z-index: 100; background: #020617; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-        .java-text { color: var(--java-orange); font-family: 'JetBrains Mono', monospace; }
-        .btn-glow:hover { box-shadow: 0 0 20px rgba(248, 152, 32, 0.4); transform: translateY(-2px); }
-        input { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; }
-        input:focus { border-color: var(--java-orange) !important; outline: none; }
+        body { background: #020617; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        .hidden { display: none !important; }
+        .java-orange { color: #f89820; }
+        input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; transition: 0.3s; }
+        input:focus { border-color: #f89820 !important; outline: none; }
     </style>
 </head>
-<body>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- 🔒 SECURITY LAYER 1: LOGIN & OTP -->
-    <div id="authOverlay" class="secure-overlay">
-        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-[#f89820]">
-            <div id="loginStep">
-                <div class="flex justify-center mb-6"><div class="p-4 bg-orange-500/10 rounded-full"><i data-lucide="shield-check" class="text-[#f89820] w-10 h-10"></i></div></div>
-                <h2 class="text-2xl font-extrabold text-white text-center mb-2">Restricted Access</h2>
-                <p class="text-sm text-center text-slate-500 mb-8">Enter credentials to unlock the Full Stack Portfolio</p>
-                
-                <div class="space-y-4">
-                    <input type="text" id="username" placeholder="Username" class="w-full p-4 rounded-2xl">
-                    <input type="password" id="password" placeholder="Password" class="w-full p-4 rounded-2xl">
-                    <button onclick="verifyLogin()" class="w-full bg-[#f89820] text-white py-4 rounded-2xl font-extrabold btn-glow transition-all">Verify Identity</button>
+    <!-- 🔐 AUTHENTICATION BOX -->
+    <div id="authContainer" class="w-full max-w-md glass p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-10 -left-10 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
+        
+        <!-- 1. LOGIN VIEW -->
+        <div id="loginView">
+            <h2 class="text-3xl font-black mb-2 text-center tracking-tighter italic">SYSTEM<span class="java-orange">_LOGIN</span></h2>
+            <p class="text-xs text-center text-slate-500 mb-8">Access Enterprise Dashboard</p>
+            <div class="space-y-4">
+                <input type="text" id="logUser" placeholder="Mobile / Username" class="w-full p-4 rounded-xl">
+                <input type="password" id="logPass" placeholder="Password" class="w-full p-4 rounded-xl">
+                <button onclick="attemptLogin()" class="w-full bg-orange-600 hover:bg-orange-700 py-4 rounded-xl font-black transition-all">SIGN IN</button>
+                <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2">
+                    <button onclick="showView('forgotView')" class="hover:text-white">Forgot Access?</button>
+                    <button onclick="showView('registerView')" class="text-orange-500 hover:text-white">New Registration</button>
                 </div>
             </div>
+        </div>
 
-            <!-- OTP Step (Hidden initially) -->
-            <div id="otpStep" class="hidden">
-                <div class="flex justify-center mb-6"><div class="p-4 bg-blue-500/10 rounded-full"><i data-lucide="smartphone" class="text-blue-400 w-10 h-10"></i></div></div>
-                <h2 class="text-2xl font-extrabold text-white text-center mb-2">OTP Verification</h2>
-                <p class="text-sm text-center text-slate-500 mb-6 italic">OTP sent to: <span class="text-white font-bold">+91 7317212722</span></p>
-                <input type="text" id="otpInput" maxlength="6" placeholder="· · · · · ·" class="w-full p-4 rounded-2xl text-center tracking-[1em] font-bold text-xl mb-4">
-                <button onclick="verifyOTP()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-extrabold btn-glow transition-all">Unlock System</button>
-                <p class="text-[10px] text-slate-500 text-center mt-6 uppercase tracking-widest">Secured by JWT & Spring Security Logic</p>
+        <!-- 2. REGISTRATION VIEW -->
+        <div id="registerView" class="hidden">
+            <h2 class="text-2xl font-black mb-6 text-center">CREATE <span class="text-blue-400">ACCOUNT</span></h2>
+            <div class="space-y-4">
+                <input type="text" id="regName" placeholder="Full Name" class="w-full p-4 rounded-xl">
+                <input type="text" id="regUser" placeholder="Mobile Number" class="w-full p-4 rounded-xl">
+                <input type="password" id="regPass" placeholder="Create Password" class="w-full p-4 rounded-xl">
+                <button onclick="handleRegister()" class="w-full bg-blue-600 py-4 rounded-xl font-black">REGISTER NOW</button>
+                <button onclick="showView('loginView')" class="w-full text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">Back to Login</button>
             </div>
+        </div>
+
+        <!-- 3. OTP VERIFICATION VIEW -->
+        <div id="otpView" class="hidden text-center">
+            <div class="mb-6"><i data-lucide="shield-check" class="mx-auto w-12 h-12 text-green-400"></i></div>
+            <h2 class="text-2xl font-black mb-2">VERIFY OTP</h2>
+            <p id="otpMsg" class="text-xs text-slate-400 mb-6 italic"></p>
+            <input type="text" id="otpInput" maxlength="6" placeholder="******" class="w-full p-4 rounded-xl text-center text-2xl tracking-[0.5em] font-bold mb-4 border-2 border-green-500/50">
+            <button onclick="finalVerify()" class="w-full bg-green-600 py-4 rounded-xl font-black">VALIDATE SESSION</button>
+        </div>
+
+        <!-- 4. FORGOT PASSWORD -->
+        <div id="forgotView" class="hidden">
+            <h2 class="text-2xl font-black mb-6 text-center">RESET <span class="text-red-400">ACCESS</span></h2>
+            <p class="text-[10px] text-center mb-6">Enter registered mobile to receive reset code</p>
+            <input type="text" id="forgotMobile" placeholder="Mobile Number" class="w-full p-4 rounded-xl mb-4">
+            <button onclick="handleForgot()" class="w-full bg-red-600 py-4 rounded-xl font-black">SEND RESET OTP</button>
+            <button onclick="showView('loginView')" class="w-full text-xs text-slate-500 font-bold uppercase tracking-widest mt-4">Cancel</button>
         </div>
     </div>
 
-    <!-- 🌐 MAIN WEBSITE CONTENT (Hidden until verified) -->
-    <div id="mainContent" class="hidden opacity-0 transition-opacity duration-1000">
-        
-        <!-- Navigation -->
-        <nav class="fixed top-0 w-full z-50 glass px-8 py-5 flex justify-between items-center border-b border-white/5">
-            <h1 class="text-2xl font-black text-white tracking-tighter">JAVA<span class="text-[#f89820]">.ARCHITECT</span></h1>
-            <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest">
-                <a href="#projects" class="hover:text-[#f89820]">Systems</a>
-                <a href="#tech" class="hover:text-[#f89820]">Stack</a>
-                <a href="#contact" class="hover:text-[#f89820]">Consult</a>
+    <!-- 🖥️ MAIN DASHBOARD CONTENT -->
+    <div id="dashboard" class="hidden w-full max-w-6xl p-6">
+        <nav class="flex justify-between items-center mb-12 glass p-6 rounded-[2rem]">
+            <div>
+                <h1 class="font-black text-xl italic">DEV<span class="java-orange">.SYSTEMS</span></h1>
+                <p id="welcomeUser" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest"></p>
             </div>
-            <a href="https://wa.me" class="bg-green-600 text-white px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
-                <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
-            </a>
+            <button onclick="location.reload()" class="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="log-out"></i></button>
         </nav>
 
-        <!-- Hero Section -->
-        <section class="min-h-screen flex flex-col justify-center items-center px-6 text-center bg-[url('https://www.transparenttextures.com')]">
-            <div class="p-3 bg-white/5 rounded-2xl mb-8 border border-white/10"><i data-lucide="cpu" class="text-[#f89820] w-12 h-12"></i></div>
-            <h2 class="text-6xl md:text-8xl font-black text-white mb-6 tracking-tight leading-none">
-                Engineering <br> <span class="text-[#f89820]">Elite</span> Backend.
-            </h2>
-            <p class="max-w-2xl text-slate-400 text-xl leading-relaxed mb-12">
-                Specializing in Distributed Systems, Spring Boot Microservices, and High-Performance Java Architectures. 
-                <span class="block mt-4 text-sm font-mono text-blue-400">// Current Location: Mumbai, India</span>
-            </p>
-            <div class="flex gap-4">
-                <button class="bg-white text-black px-10 py-5 rounded-2xl font-black hover:bg-[#f89820] transition-colors">Download System CV</button>
-            </div>
-        </section>
-
-        <!-- 🛠 Deep Tech Stack -->
-        <section id="tech" class="py-32 px-8 max-w-7xl mx-auto">
-            <h3 class="text-4xl font-black text-white mb-20 flex items-center gap-6 italic">
-                SYSTEM_STACK <div class="h-[2px] flex-1 bg-white/10"></div>
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="glass p-10 rounded-[3rem] hover:bg-orange-500/5 transition-all">
-                    <i data-lucide="code-2" class="text-orange-400 mb-6"></i>
-                    <h4 class="text-white font-bold text-xl mb-4">Core Java</h4>
-                    <p class="text-sm">Multithreading, OOPs, Collections, Lambda Expressions, Streams API.</p>
+        <div id="adminPanel" class="hidden animate-in fade-in duration-700">
+            <h2 class="text-4xl font-black mb-8">ADMIN <span class="java-orange">PORTFOLIO</span></h2>
+            <!-- Yahan aapke projects honge -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass p-8 rounded-[2rem] border-l-4 border-orange-500">
+                    <h3 class="text-xl font-bold mb-2 underline">Banking Engine (Java)</h3>
+                    <p class="text-sm text-slate-400">Enterprise microservices for real-time transactions.</p>
                 </div>
-                <div class="glass p-10 rounded-[3rem] border-b-4 border-blue-500">
-                    <i data-lucide="server" class="text-blue-400 mb-6"></i>
-                    <h4 class="text-white font-bold text-xl mb-4">Spring Boot</h4>
-                    <p class="text-sm">Microservices, Spring Security, JPA, Spring Cloud, Hibernate.</p>
-                </div>
-                <div class="glass p-10 rounded-[3rem]">
-                    <i data-lucide="database" class="text-green-400 mb-6"></i>
-                    <h4 class="text-white font-bold text-xl mb-4">Database</h4>
-                    <p class="text-sm">MySQL, PostgreSQL, MongoDB, Redis Caching, ElasticSearch.</p>
-                </div>
-                <div class="glass p-10 rounded-[3rem] border-b-4 border-purple-500">
-                    <i data-lucide="cloud" class="text-purple-400 mb-6"></i>
-                    <h4 class="text-white font-bold text-xl mb-4">DevOps</h4>
-                    <p class="text-sm">Docker, Kubernetes, AWS (EC2/RDS), Jenkins CI/CD, Nginx.</p>
+                <div class="glass p-8 rounded-[2rem] border-l-4 border-blue-500">
+                    <h3 class="text-xl font-bold mb-2 underline">Kafka Infrastructure</h3>
+                    <p class="text-sm text-slate-400">High-concurrency data streaming pipeline.</p>
                 </div>
             </div>
-        </section>
-
-        <!-- 📁 High-Depth Projects -->
-        <section id="projects" class="py-32 px-8 bg-slate-900/30">
-            <div class="max-w-7xl mx-auto">
-                <h3 class="text-4xl font-black text-white mb-20">ENTERPRISE_PROJECTS</h3>
-                <div class="space-y-20">
-                    <!-- Project Item -->
-                    <div class="flex flex-col md:flex-row gap-12 items-center">
-                        <div class="flex-1 glass p-1 rounded-[3rem] overflow-hidden">
-                            <div class="bg-gradient-to-br from-orange-500 to-red-600 h-64 md:h-96 rounded-[2.8rem] flex items-center justify-center">
-                                <i data-lucide="banknote" class="w-32 h-32 text-white/20"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1 space-y-6">
-                            <span class="java-text text-sm font-bold tracking-widest uppercase">FinTech Solution</span>
-                            <h4 class="text-4xl font-bold text-white leading-tight">Digital Banking Microservices Architecture</h4>
-                            <p class="text-lg leading-relaxed">Built a core banking system handling real-time payments and ledger entries using Spring Boot, Kafka, and PostgreSQL. Integrated ISO8583 standards for transaction security.</p>
-                            <ul class="flex flex-wrap gap-4 text-xs font-bold font-mono">
-                                <li class="px-4 py-2 glass rounded-full">SPRING_SECURITY</li>
-                                <li class="px-4 py-2 glass rounded-full">KAFKA</li>
-                                <li class="px-4 py-2 glass rounded-full">POSTGRES</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-10 text-center">
+                <a href="https://wa.me" class="bg-green-600 px-8 py-4 rounded-full font-bold inline-flex items-center gap-2"><i data-lucide="message-circle"></i> Direct WhatsApp Contact</a>
             </div>
-        </section>
+        </div>
 
-        <!-- Footer -->
-        <footer id="contact" class="py-20 px-8 border-t border-white/5 text-center">
-            <h3 class="text-3xl font-bold text-white mb-8 italic">READY TO SCALE?</h3>
-            <div class="flex flex-wrap justify-center gap-6 mb-12">
-                <a href="tel:+917317212722" class="glass px-8 py-4 rounded-2xl flex items-center gap-3 hover:text-[#f89820] transition-colors">
-                    <i data-lucide="phone"></i> +91 7317212722
-                </a>
-                <a href="mailto:yourname@gmail.com" class="glass px-8 py-4 rounded-2xl flex items-center gap-3 hover:text-blue-400 transition-colors">
-                    <i data-lucide="mail"></i> Email Architect
-                </a>
+        <div id="userPanel" class="hidden">
+            <h2 class="text-3xl font-black mb-8 text-blue-400 italic uppercase">User Workspace</h2>
+            <div class="glass p-10 rounded-[3rem] text-center border-dashed border-2 border-slate-700">
+                <i data-lucide="plus-circle" class="mx-auto w-12 h-12 text-slate-600 mb-4"></i>
+                <p class="text-slate-500">You don't have any projects yet.</p>
+                <button class="mt-6 bg-white/5 border border-white/10 px-6 py-2 rounded-xl text-xs font-bold hover:bg-white/10 transition-all">ADD NEW PROJECT</button>
             </div>
-            <p class="text-[10px] text-slate-600 uppercase tracking-[0.5em]">Protected Environment • 2026</p>
-        </footer>
+        </div>
+    </footer>
 
-    </div>
-
-    <!-- Logic for Security -->
-    <script src="https://unpkg.com"></script>
     <script>
         lucide.createIcons();
-        AOS.init();
 
-        // 🛡 SET YOUR CREDENTIALS HERE
-        const VALID_USER = "admin";
-        const VALID_PASS = "731721";
-        const VALID_OTP = "12722"; // Last 5 digits of your number as OTP
+        // 🧠 SYSTEM CONFIG
+        const ADMIN_MOBILE = "7317212722";
+        const ADMIN_PASS = "admin7317";
+        let currentOTP = "";
+        let loggedUser = null;
 
-        function verifyLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+        // View Controller
+        function showView(viewId) {
+            ['loginView', 'registerView', 'otpView', 'forgotView'].forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+        }
 
-            if(user === VALID_USER && pass === VALID_PASS) {
-                document.getElementById('loginStep').classList.add('hidden');
-                document.getElementById('otpStep').classList.remove('hidden');
-                alert("Login Success! OTP sent to 7317212722");
+        // Generate Random OTP
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // Login Logic
+        function attemptLogin() {
+            const user = document.getElementById('logUser').value;
+            const pass = document.getElementById('logPass').value;
+            
+            // Check LocalStorage for Users
+            const users = JSON.parse(localStorage.getItem('webUsers') || '[]');
+            const foundUser = users.find(u => u.mobile === user && u.pass === pass);
+
+            if (user === ADMIN_MOBILE && pass === ADMIN_PASS) {
+                initiateOTP("ADMIN_SECURE");
+            } else if (foundUser) {
+                initiateOTP(foundUser.name);
             } else {
-                alert("Invalid Credentials! Access Denied.");
+                alert("❌ Access Denied: Invalid Credentials");
             }
         }
 
-        function verifyOTP() {
-            const otp = document.getElementById('otpInput').value;
-            if(otp === VALID_OTP) {
-                document.getElementById('authOverlay').classList.add('hidden');
-                const content = document.getElementById('mainContent');
-                content.classList.remove('hidden');
-                setTimeout(() => content.classList.add('opacity-100'), 100);
+        // Registration Logic
+        function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const mobile = document.getElementById('regUser').value;
+            const pass = document.getElementById('regPass').value;
+
+            if(!name || !mobile || !pass) return alert("Please fill all fields!");
+            
+            let users = JSON.parse(localStorage.getItem('webUsers') || '[]');
+            if(users.find(u => u.mobile === mobile)) return alert("User already exists!");
+
+            users.push({name, mobile, pass});
+            localStorage.setItem('webUsers', JSON.stringify(users));
+            alert("✅ Account Created! Please Login.");
+            showView('loginView');
+        }
+
+        // OTP Simulation
+        function initiateOTP(userName) {
+            currentOTP = generateOTP();
+            loggedUser = userName;
+            showView('otpView');
+            document.getElementById('otpMsg').innerText = `OTP: ${currentOTP} (MOCK SMS sent to number)`;
+            alert(`SISTEM_MESSAGE: Your login OTP is ${currentOTP}`);
+        }
+
+        function finalVerify() {
+            const inp = document.getElementById('otpInput').value;
+            if(inp === currentOTP) {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.body.classList.remove('items-center', 'justify-center');
+                
+                document.getElementById('welcomeUser').innerText = `SESSION_ACTIVE: ${loggedUser}`;
+                
+                if(loggedUser === "ADMIN_SECURE") {
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                } else {
+                    document.getElementById('userPanel').classList.remove('hidden');
+                }
             } else {
-                alert("Invalid OTP! Try Again.");
+                alert("❌ Verification Failed: Wrong OTP!");
+            }
+        }
+
+        function handleForgot() {
+            const mob = document.getElementById('forgotMobile').value;
+            if(mob === ADMIN_MOBILE) {
+                alert("RESET_LINK: Sent to admin system. New Password: " + ADMIN_PASS);
+            } else {
+                alert("OTP Sent to your registered mobile.");
             }
         }
     </script>
