@@ -2,200 +2,261 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Enterprise Java Portal | Secure Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Java Architect | Admin Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com"></script>
     <style>
-        body { background: #020617; color: #cbd5e1; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
         .hidden { display: none !important; }
-        input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; padding: 14px; border-radius: 12px; width: 100%; font-size: 16px; margin-bottom: 12px; }
-        .btn { width: 100%; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 14px; text-transform: uppercase; cursor: pointer; border: none; transition: 0.3s; }
-        .btn-orange { background: #f89820; color: white; }
-        .btn-blue { background: #2563eb; color: white; }
-        .btn-green { background: #16a34a; color: white; }
+        .java-orange { color: #f89820; }
+        .btn-grad { background: linear-gradient(90deg, #f89820, #e76f51); border: none; }
+        input { background: #0f172a !important; border: 1px solid #334155 !important; color: white !important; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; outline: none; }
+        input:focus { border-color: #f89820 !important; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-5">
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- 🔒 ALL-IN-ONE AUTH CONTAINER -->
-    <div id="authBox" class="w-full max-w-sm glass p-8 rounded-[2rem] shadow-2xl border-t-4 border-[#f89820]">
-        
-        <!-- SECTION 1: LOGIN -->
-        <div id="loginArea">
-            <h2 class="text-2xl font-black text-center text-white mb-2 italic tracking-tighter">SECURE_LOGIN</h2>
-            <p class="text-[10px] text-center text-slate-500 mb-8 uppercase tracking-widest font-bold">Two-Factor Authentication Active</p>
-            
-            <input type="text" id="logUser" placeholder="Mobile Number (7317212722)">
-            <input type="password" id="logPass" placeholder="Password (admin7317)">
-            
-            <button onclick="processLogin()" class="btn btn-orange mb-4">Verify Identity</button>
-            
-            <div class="flex justify-between px-2">
-                <button onclick="switchTab('regArea')" class="text-[10px] font-bold text-blue-400 uppercase">New Registration</button>
-                <button onclick="alert('Contact Support: 7317212722')" class="text-[10px] font-bold text-slate-500 uppercase italic underline">Forgot?</button>
+    <!-- 🔒 SECURITY LAYER -->
+    <div id="authBox" class="w-full max-w-sm glass p-8 rounded-[2.5rem] shadow-2xl border-t-4 border-[#f89820]">
+        <div id="loginView">
+            <h2 class="text-2xl font-black text-center mb-6 italic tracking-tighter">JAVA<span class="java-orange">_SECURE</span></h2>
+            <input type="text" id="lUser" placeholder="Admin/Mobile Number">
+            <input type="password" id="lPass" placeholder="Access Password">
+            <button onclick="handleLogin()" class="w-full btn-grad py-4 rounded-xl font-bold uppercase tracking-widest mt-2 shadow-lg">Verify Session</button>
+            <div class="flex justify-between mt-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">
+                <button onclick="toggleAuth('regView')" class="hover:text-blue-400">New Registration</button>
+                <button onclick="alert('Contact: 7317212722')">Forgot Access?</button>
             </div>
         </div>
 
-        <!-- SECTION 2: REGISTER -->
-        <div id="regArea" class="hidden">
-            <h2 class="text-2xl font-black text-center text-blue-400 mb-6 uppercase italic">Registration</h2>
-            <input type="text" id="regName" placeholder="Full Name">
-            <input type="text" id="regMob" placeholder="Mobile Number">
-            <input type="password" id="regPass" placeholder="Set Password">
-            <button onclick="processRegister()" class="btn btn-blue">Create Account</button>
-            <button onclick="switchTab('loginArea')" class="w-full text-[10px] mt-4 font-bold text-slate-500 uppercase tracking-widest text-center">Back to Sign In</button>
+        <div id="regView" class="hidden">
+            <h2 class="text-2xl font-black text-center mb-6 text-blue-400">REGISTER</h2>
+            <input type="text" id="rName" placeholder="Full Name">
+            <input type="text" id="rMob" placeholder="Mobile Number">
+            <input type="password" id="rPass" placeholder="Set Password">
+            <button onclick="handleRegister()" class="w-full bg-blue-600 py-4 rounded-xl font-bold">CREATE ACCOUNT</button>
+            <button onclick="toggleAuth('loginView')" class="w-full text-[10px] mt-4 font-bold text-slate-500 uppercase tracking-widest text-center">Back to Login</button>
         </div>
 
-        <!-- SECTION 3: OTP VERIFY -->
-        <div id="otpArea" class="hidden text-center">
-            <h2 class="text-2xl font-black text-green-500 mb-2">OTP SENT</h2>
-            <p class="text-[10px] text-slate-500 mb-6 italic" id="otpDisplay"></p>
-            <input type="text" id="otpInp" placeholder="Enter OTP" class="text-center text-xl font-bold tracking-widest border-green-500/50">
-            <button onclick="processOTP()" class="btn btn-green">Unlock System</button>
+        <div id="otpView" class="hidden text-center">
+            <h2 class="text-2xl font-black mb-2 text-green-500 uppercase">OTP SENT</h2>
+            <p id="otpHint" class="text-[10px] text-slate-500 mb-6 italic font-mono"></p>
+            <input type="text" id="otpInp" placeholder="Enter OTP" class="text-center text-xl font-bold tracking-widest border-green-500">
+            <button onclick="verifyAccess()" class="w-full bg-green-600 py-4 rounded-xl font-bold uppercase">Unlock Portal</button>
         </div>
-
-        <p id="debugMsg" class="text-red-500 text-[10px] font-bold mt-4 text-center hidden uppercase tracking-widest"></p>
     </div>
 
-    <!-- 🖥️ MAIN CONTENT (Initially Hidden) -->
-    <div id="mainDashboard" class="hidden w-full max-w-4xl animate-in fade-in duration-500">
-        <nav class="flex justify-between items-center mb-8 glass p-6 rounded-2xl border-l-4 border-[#f89820]">
+    <!-- 🖥️ THE MASTER DASHBOARD -->
+    <div id="masterSite" class="hidden w-full max-w-6xl py-10 px-4">
+        <!-- Nav -->
+        <nav class="glass p-6 rounded-[2rem] flex justify-between items-center mb-12">
             <div>
-                <h1 class="font-black text-white italic">DEV<span class="text-[#f89820]">.PORTFOLIO</span></h1>
-                <p id="statusTag" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest italic"></p>
+                <h1 class="font-black text-xl italic tracking-tighter">JAVA<span class="java-orange">.ARCHITECT</span></h1>
+                <p id="sessionInfo" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest"></p>
             </div>
-            <button onclick="location.reload()" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-xl text-xs font-bold border border-red-500/20">LOGOUT</button>
+            <button onclick="location.reload()" class="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all"><i data-lucide="power"></i></button>
         </nav>
 
-        <!-- ADMIN EXCLUSIVE VIEW -->
-        <div id="adminView" class="hidden space-y-6">
-            <h2 class="text-4xl font-black text-white">SYSTEM_PROJECTS</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="glass p-8 rounded-[2rem] border-l-4 border-[#f89820]">
-                    <h3 class="font-bold text-white mb-2 underline">Spring Boot Microservices</h3>
-                    <p class="text-sm text-slate-400">High-concurrency banking engine with Kafka and PostgreSQL.</p>
-                </div>
-                <div class="glass p-8 rounded-[2rem] border-l-4 border-blue-500">
-                    <h3 class="font-bold text-white mb-2 underline">Secure Auth Gateway</h3>
-                    <p class="text-sm text-slate-400">Multi-Factor Authentication logic using Java Security protocols.</p>
+        <!-- 👑 ADMIN ONLY: USER MANAGEMENT -->
+        <section id="adminGodMode" class="hidden mb-16">
+            <h3 class="text-2xl font-black mb-6 flex items-center gap-3">
+                <i data-lucide="users" class="java-orange"></i> USER_DATABASE
+            </h3>
+            <div class="glass rounded-[2rem] overflow-hidden p-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="border-b border-white/10 text-slate-500 uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Name</th>
+                                <th class="p-4">Mobile</th>
+                                <th class="p-4">Password</th>
+                                <th class="p-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- JS will inject users here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="text-center pt-8">
-                <a href="https://wa.me" class="bg-green-600 text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-green-500/20 inline-block">WhatsApp Admin Directly</a>
-            </div>
-        </div>
+        </section>
 
-        <!-- USER WORKSPACE VIEW -->
-        <div id="userView" class="hidden text-center py-20 bg-white/5 rounded-[3rem] border-2 border-dashed border-slate-800">
-            <h2 class="text-2xl font-black text-blue-400 mb-2">USER WORKSPACE</h2>
-            <p class="text-sm text-slate-500 italic px-10">Welcome! Your personal project repository is currently empty. Start building your legacy.</p>
-            <button class="mt-8 border border-slate-700 px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">+ Create New Project</button>
+        <!-- 🚀 ADMIN ONLY: LIVE JAVA PROJECTS -->
+        <section id="adminProjects" class="hidden">
+            <h3 class="text-3xl font-black mb-10 italic">SYSTEM_PROJECTS_DEEP_LEVEL</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-[#f89820]">
+                    <div class="mb-4 text-orange-500"><i data-lucide="landmark"></i></div>
+                    <h4 class="font-bold text-xl mb-3 underline">Enterprise Banking v2</h4>
+                    <p class="text-xs text-slate-400 mb-6">Spring Boot Microservices with Kafka, OAuth2 Security, and PostgreSQL Sharding.</p>
+                    <a href="#" class="text-[10px] font-bold text-orange-400 flex items-center gap-1 uppercase">Live System Demo <i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+                <!-- Project 2 -->
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-blue-500">
+                    <div class="mb-4 text-blue-500"><i data-lucide="shield-check"></i></div>
+                    <h4 class="font-bold text-xl mb-3 underline">Sentinel Auth Engine</h4>
+                    <p class="text-xs text-slate-400 mb-6">MFA & JWT based Identity Management system using Java 21 & Spring Security.</p>
+                    <a href="#" class="text-[10px] font-bold text-blue-400 flex items-center gap-1 uppercase">View Architecture <i data-lucide="github" class="w-3 h-3"></i></a>
+                </div>
+                <!-- Project 3 -->
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-green-500">
+                    <div class="mb-4 text-green-500"><i data-lucide="cpu"></i></div>
+                    <h4 class="font-bold text-xl mb-3 underline">Inventory Real-time</h4>
+                    <p class="text-xs text-slate-400 mb-6">High-concurrency stock tracking with Redis Caching and Spring Cloud Gateway.</p>
+                    <a href="#" class="text-[10px] font-bold text-green-400 flex items-center gap-1 uppercase">Live Stream <i data-lucide="external-link" class="w-3 h-3"></i></a>
+                </div>
+            </div>
+
+            <!-- Contact Deck -->
+            <div class="mt-20 glass p-10 rounded-[3rem] text-center max-w-2xl mx-auto">
+                <h3 class="text-2xl font-bold mb-8">Let's Build the Infrastructure</h3>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="https://wa.me" class="bg-green-600 px-8 py-3 rounded-xl font-bold flex items-center gap-2"><i data-lucide="message-circle"></i> WhatsApp Chat</a>
+                    <a href="mailto:pro.java.dev@gmail.com" class="glass px-8 py-3 rounded-xl font-bold flex items-center gap-2 text-blue-400"><i data-lucide="mail"></i> Email Architect</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 👤 USER ONLY VIEW -->
+        <div id="userEmptyView" class="hidden py-32 text-center">
+            <div class="glass p-12 rounded-[3rem] border-dashed border-2 border-slate-700 max-w-md mx-auto">
+                <i data-lucide="folder-plus" class="w-12 h-12 text-slate-600 mx-auto mb-4"></i>
+                <h2 class="text-xl font-bold text-slate-300">Workspace Empty</h2>
+                <p class="text-xs text-slate-500 mt-2 mb-8 italic">Aapka account verify ho chuka hai. Naye projects add karne ke liye "+" button dabayein.</p>
+                <button class="bg-white/5 border border-white/10 px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest">+ NEW_PROJECT_ENTRY</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 🧪 SYSTEM VARIABLES
-        let activeOTP = "";
-        let userRole = "";
+        lucide.createIcons();
+
+        // 🧠 DATABASE & CONFIG
         const ADMIN_MOBILE = "7317212722";
         const ADMIN_PASS = "admin7317";
+        let activeOTP = "";
+        let currentRole = "";
 
-        // 🛠 Helper Functions
-        function switchTab(targetId) {
-            document.getElementById('loginArea').classList.add('hidden');
-            document.getElementById('regArea').classList.add('hidden');
-            document.getElementById('otpArea').classList.add('hidden');
-            document.getElementById(targetId).classList.remove('hidden');
-            document.getElementById('debugMsg').classList.add('hidden');
+        // UI View Controller
+        function toggleAuth(view) {
+            ['loginView', 'regView', 'otpView'].forEach(v => document.getElementById(v).classList.add('hidden'));
+            document.getElementById(view).classList.remove('hidden');
         }
 
-        function showDebug(msg) {
-            const err = document.getElementById('debugMsg');
-            err.innerText = "Error: " + msg;
-            err.classList.remove('hidden');
+        // 📝 Register Function
+        function handleRegister() {
+            const n = document.getElementById('rName').value.trim();
+            const m = document.getElementById('rMob').value.trim();
+            const p = document.getElementById('rPass').value.trim();
+
+            if(!n || !m || !p) return alert("Fill all fields!");
+
+            let users = JSON.parse(localStorage.getItem('sys_users') || '[]');
+            if(users.find(u => u.mob === m)) return alert("User already exists!");
+
+            users.push({name: n, mob: m, pass: p});
+            localStorage.setItem('sys_users', JSON.stringify(users));
+            alert("Account Created! Please Sign In.");
+            toggleAuth('loginView');
         }
 
-        // 📝 Registration Logic
-        function processRegister() {
-            const n = document.getElementById('regName').value;
-            const m = document.getElementById('regMob').value;
-            const p = document.getElementById('regPass').value;
+        // 🔑 Login Function
+        function handleLogin() {
+            const u = document.getElementById('lUser').value.trim();
+            const p = document.getElementById('lPass').value.trim();
 
-            if(!n || !m || !p) return showDebug("ALL FIELDS REQUIRED");
-
-            let storage = JSON.parse(localStorage.getItem('userDB') || '[]');
-            storage.push({name: n, mob: m, pass: p});
-            localStorage.setItem('userDB', JSON.stringify(storage));
-            
-            alert("SUCCESS: Account Created! Please Sign In.");
-            switchTab('loginArea');
-        }
-
-        // 🔑 Login Logic
-        function processLogin() {
-            const u = document.getElementById('logUser').value.trim();
-            const p = document.getElementById('logPass').value.trim();
-
-            if(!u || !p) return showDebug("CREDENTIALS MISSING");
-
-            // Check Admin
             if(u === ADMIN_MOBILE && p === ADMIN_PASS) {
-                initiateOTP("ADMIN_LEVEL_ACCESS");
+                initiateOTP("ADMIN_GOD_LEVEL");
                 return;
             }
 
-            // Check Registered Users
-            let storage = JSON.parse(localStorage.getItem('userDB') || '[]');
-            const found = storage.find(x => x.mob === u && x.pass === p);
+            let users = JSON.parse(localStorage.getItem('sys_users') || '[]');
+            const found = users.find(x => x.mob === u && x.pass === p);
 
             if(found) {
                 initiateOTP(found.name);
             } else {
-                showDebug("INVALID MOBILE OR PASSWORD");
+                alert("Invalid Credentials!");
             }
         }
 
-        // 🔢 OTP System
+        // 🔢 OTP Function
         function initiateOTP(role) {
             activeOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            userRole = role;
-            
-            switchTab('otpArea');
-            document.getElementById('otpDisplay').innerText = "OTP SENT TO " + ADMIN_MOBILE + " : " + activeOTP;
-            alert("SECURE_AUTH: Your Access OTP is " + activeOTP);
+            currentRole = role;
+            toggleAuth('otpView');
+            document.getElementById('otpHint').innerText = "Access OTP for 7317212722 : " + activeOTP;
+            alert("SECURE_ACCESS_OTP: " + activeOTP);
         }
 
-        function processOTP() {
-            const val = document.getElementById('otpInp').value;
+        function verifyAccess() {
+            const val = document.getElementById('otpInp').value.trim();
             if(val === activeOTP) {
-                // Success: Hide Auth, Show Dash
                 document.getElementById('authBox').classList.add('hidden');
-                document.getElementById('mainDashboard').classList.remove('hidden');
+                document.getElementById('masterSite').classList.remove('hidden');
                 document.body.classList.remove('items-center', 'justify-center');
-                document.body.style.padding = "40px 20px";
+                document.body.style.padding = "20px";
+                
+                document.getElementById('sessionInfo').innerText = "Session: " + currentRole + " // RSA_256_ACTIVE";
 
-                document.getElementById('statusTag').innerText = "SESSION_STATUS: VERIFIED // USER: " + userRole;
-
-                if(userRole === "ADMIN_LEVEL_ACCESS") {
-                    document.getElementById('adminView').classList.remove('hidden');
+                if(currentRole === "ADMIN_GOD_LEVEL") {
+                    document.getElementById('adminGodMode').classList.remove('hidden');
+                    document.getElementById('adminProjects').classList.remove('hidden');
+                    loadUsersTable();
                 } else {
-                    document.getElementById('userView').classList.remove('hidden');
+                    document.getElementById('userEmptyView').classList.remove('hidden');
                 }
             } else {
-                showDebug("INCORRECT OTP CODE");
+                alert("Wrong OTP!");
+            }
+        }
+
+        // 👑 ADMIN: Manage Users Table
+        function loadUsersTable() {
+            const users = JSON.parse(localStorage.getItem('sys_users') || '[]');
+            const table = document.getElementById('userTableBody');
+            table.innerHTML = users.length === 0 ? '<tr><td colspan="4" class="p-8 text-center text-slate-600 italic">No registered users found.</td></tr>' : '';
+
+            users.forEach((u, index) => {
+                table.innerHTML += `
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td class="p-4 font-bold text-white">${u.name}</td>
+                        <td class="p-4 text-slate-400 font-mono">${u.mob}</td>
+                        <td class="p-4 font-mono">${u.pass}</td>
+                        <td class="p-4 text-center flex justify-center gap-3">
+                            <button onclick="modifyUser(${index})" class="text-blue-400 hover:scale-110 transition-transform"><i data-lucide="edit-3"></i></button>
+                            <button onclick="removeUser(${index})" class="text-red-500 hover:scale-110 transition-transform"><i data-lucide="trash-2"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        window.removeUser = function(index) {
+            if(confirm("Confirm: Delete this user from database?")) {
+                let users = JSON.parse(localStorage.getItem('sys_users') || '[]');
+                users.splice(index, 1);
+                localStorage.setItem('sys_users', JSON.stringify(users));
+                loadUsersTable();
+            }
+        }
+
+        window.modifyUser = function(index) {
+            let users = JSON.parse(localStorage.getItem('sys_users') || '[]');
+            const newName = prompt("New Name:", users[index].name);
+            const newPass = prompt("New Password:", users[index].pass);
+            
+            if(newName && newPass) {
+                users[index].name = newName;
+                users[index].pass = newPass;
+                localStorage.setItem('sys_users', JSON.stringify(users));
+                loadUsersTable();
             }
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
